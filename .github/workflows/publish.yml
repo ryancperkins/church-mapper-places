@@ -1,0 +1,43 @@
+name: Publish places
+
+on:
+  schedule:
+    - cron: "0 7 5 * *"
+  workflow_dispatch:
+    inputs:
+      release:
+        description: "Overture release name, or latest"
+        default: latest
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 -m pip install duckdb
+      - name: Pull from Overture
+        id: pull
+        run: |
+          python3 pull.py --release "${{ github.event.inputs.release || 'latest' }}" --out data
+          echo "release=$(cat data/RELEASE)" >> "$GITHUB_OUTPUT"
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.pull.outputs.release }}
+        run: |
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "release $TAG already exists; nothing to publish"
+            exit 0
+          fi
+          gh release create "$TAG" data/"$TAG"/churches-*.csv.gz data/"$TAG"/manifest.json data/"$TAG"/NOTICE \
+            --repo "$GITHUB_REPOSITORY" --latest \
+            --title "Overture places $TAG" \
+            --notes "Religious places in the United States from Overture Maps release $TAG, one gzipped CSV per state. See manifest.json for counts and checksums, and NOTICE for the licenses."

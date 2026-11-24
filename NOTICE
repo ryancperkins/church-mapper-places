@@ -1,0 +1,13 @@
+Place data in this release comes from the Overture Maps Foundation, places
+theme, release {release}. https://overturemaps.org
+
+Overture publishes its places data under licenses that depend on the source of
+each record. The source column names it for every row.
+
+- Records from Meta, Microsoft and other contributors: Community Data License
+  Agreement, Permissive, Version 2.0 (CDLA-Permissive-2.0).
+- Records from Foursquare: Apache License, Version 2.0. Copyright 2024
+  Foursquare Labs, Inc.
+- Records from AllThePlaces: CC0 1.0 Universal.
+
+Keep this notice with any copy of the data. Nothing here is from OpenStreetMap.
